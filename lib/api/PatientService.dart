@@ -26,4 +26,16 @@ class PatientService {
       throw Exception('Failed to load patient');
     }
   }
+
+  static Future<Patient> deletePatientData(String user_name) async {
+    var session = await SessionPrefs.getSession();
+    var url = Uri.http(Constants.BASE_HOST, "api/get_user_data", {'user_name': user_name});
+    var response = await http.delete(url, headers: {'Authorization' : "Bearer ${session!.access}"});
+
+    if (response.statusCode == 200) {
+      return Patient.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load patient');
+    }
+  }
 }

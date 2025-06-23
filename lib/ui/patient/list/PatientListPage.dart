@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pd_app/model/Patient.dart';
+import 'package:pd_app/api/PatientService.dart';
 
 import 'package:pd_app/ui/patient/list/PatientListViewModel.dart';
 import 'package:pd_app/ui/patient/list/StartPageForMedical.dart';
@@ -116,10 +117,95 @@ class _PatientListPageState extends State<PatientListPage> {
       margin: const EdgeInsets.only(left: 20.0, right: 20.0, top: 5.0, bottom: 5.0),
       width: double.infinity,
       height: 80.0,
-      child: ElevatedButton(
+      child: GestureDetector(
+        onLongPressStart: (details) async {
+          final offset = details.globalPosition;
+          final RenderBox button = context.findRenderObject() as RenderBox;
+          final Offset position = button.localToGlobal(Offset.zero); // 按鈕位置
+          print(offset);
+
+          final selected = await showMenu<String>(
+            context: context,
+            position: RelativeRect.fromLTRB(
+              offset.dx,
+              offset.dy,
+              MediaQuery.of(context).size.width - offset.dx,
+              MediaQuery.of(context).size.height - offset.dy,
+              // position.dx,
+              // position.dy,
+              // position.dx + button.size.width,
+              // position.dy + button.size.height,
+            ),
+            items: [
+              PopupMenuItem(
+                value: 'delete',
+                child: Text(
+                  '刪除該筆資料',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red.shade700,
+                  ),
+                ),
+              )
+            ],
+          );
+
+          if (selected == 'delete') {
+            print('delete selected.');
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return SimpleDialog(
+                    title: Text('是否刪除 ${patient.name} 的紀錄？'),
+                    children: [
+                      SimpleDialogOption(
+                        onPressed: () {
+                          PatientService.deletePatientData(patient.name ?? "");
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('是'),
+                      ),
+                      SimpleDialogOption(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('否'),
+                      ),
+                    ],
+                  );
+                }
+            );
+          }
+        },
+        child: ElevatedButton(
         onPressed: () {
           gotoStartPageForMedical(patient);
         },
+        // onLongPress: () {
+        //   showDialog(
+        //     context: context,
+        //     builder: (BuildContext context) {
+        //       return SimpleDialog(
+        //         title: Text('是否刪除 ${patient.name} 的紀錄？'),
+        //         children: [
+        //           SimpleDialogOption(
+        //             onPressed: () {
+        //               PatientService.deletePatientData(patient.name ?? "");
+        //               Navigator.of(context).pop();
+        //             },
+        //             child: Text('是'),
+        //           ),
+        //           SimpleDialogOption(
+        //             onPressed: () {
+        //               Navigator.of(context).pop();
+        //             },
+        //             child: Text('否'),
+        //           ),
+        //         ],
+        //       );
+        //     }
+        //   );
+        // },
         child: Container(
           padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
           child: Text(
@@ -128,7 +214,7 @@ class _PatientListPageState extends State<PatientListPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   void gotoStartPageForMedical(Patient patient) {
