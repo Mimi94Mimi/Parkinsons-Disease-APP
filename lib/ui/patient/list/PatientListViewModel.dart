@@ -6,7 +6,6 @@ class PatientListCubit extends Cubit<PatientListUiState> {
   PatientListCubit() : super(PatientListUiState());
 
   void fetch() async {
-    print("fetch");
     state.patients = await PatientService.getPatientList();
     emit(state);
   }
@@ -14,7 +13,6 @@ class PatientListCubit extends Cubit<PatientListUiState> {
   void deleteByName(String name) {
     final index = state.patients.indexWhere((patient) => patient.name == name);
     if (index != -1) {
-      print("deleteByName");
       state.patients[index].deleted = true;
       emit(state);
     }

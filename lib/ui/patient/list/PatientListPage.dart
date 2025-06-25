@@ -147,8 +147,7 @@ class _PatientListPageState extends State<PatientListPage> {
           if (patient.deleted) return;
           final offset = details.globalPosition;
           final RenderBox button = context.findRenderObject() as RenderBox;
-          final Offset position = button.localToGlobal(Offset.zero); // 按鈕位置
-          print(offset);
+          final Offset position = button.localToGlobal(Offset.zero);
 
           final selected = await showMenu<String>(
             context: context,
@@ -186,7 +185,6 @@ class _PatientListPageState extends State<PatientListPage> {
                     children: [
                       SimpleDialogOption(
                         onPressed: () {
-                          PatientService.deletePatientData(patient.name ?? "");
                           Navigator.of(context).pop();
                           context.read<PatientListCubit>().deleteByName(patient.name ?? "");
                         },
