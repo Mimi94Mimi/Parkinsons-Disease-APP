@@ -7,6 +7,7 @@ class Patient {
   int? gender_code;
   int? age;
   String? gender;
+  bool deleted = false;
 
   Patient(
       { this.name,

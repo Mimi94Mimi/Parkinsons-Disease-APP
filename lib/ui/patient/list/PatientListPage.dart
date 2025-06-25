@@ -113,12 +113,38 @@ class _PatientListPageState extends State<PatientListPage> {
   }
 
   Widget getPatientComponent(Patient patient) {
+    final enableButton = ElevatedButton(
+                          onPressed: () {
+                            gotoStartPageForMedical(patient);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                            child: Text(
+                              '姓名：${patient.name ?? ""} 歲數：${patient.age ?? ""} 性別：${patient.gender}',
+                              style: Theme.of(context).textTheme.headlineMedium
+                            ),
+                          ),
+                        );
+    final disableButton = ElevatedButton(
+                            onPressed: null,
+                            child: Container(
+                              padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                              child: Text(
+                                '姓名：${patient.name ?? ""} 歲數：${patient.age ?? ""} 性別：${patient.gender}',
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                    color: Colors.grey,
+                                )
+                              ),
+                            ),
+                          );
+
     return Container(
       margin: const EdgeInsets.only(left: 20.0, right: 20.0, top: 5.0, bottom: 5.0),
       width: double.infinity,
       height: 80.0,
       child: GestureDetector(
         onLongPressStart: (details) async {
+          if (patient.deleted) return;
           final offset = details.globalPosition;
           final RenderBox button = context.findRenderObject() as RenderBox;
           final Offset position = button.localToGlobal(Offset.zero); // 按鈕位置
@@ -162,6 +188,7 @@ class _PatientListPageState extends State<PatientListPage> {
                         onPressed: () {
                           PatientService.deletePatientData(patient.name ?? "");
                           Navigator.of(context).pop();
+                          context.read<PatientListCubit>().deleteByName(patient.name ?? "");
                         },
                         child: Text('是'),
                       ),
@@ -177,44 +204,9 @@ class _PatientListPageState extends State<PatientListPage> {
             );
           }
         },
-        child: ElevatedButton(
-        onPressed: () {
-          gotoStartPageForMedical(patient);
-        },
-        // onLongPress: () {
-        //   showDialog(
-        //     context: context,
-        //     builder: (BuildContext context) {
-        //       return SimpleDialog(
-        //         title: Text('是否刪除 ${patient.name} 的紀錄？'),
-        //         children: [
-        //           SimpleDialogOption(
-        //             onPressed: () {
-        //               PatientService.deletePatientData(patient.name ?? "");
-        //               Navigator.of(context).pop();
-        //             },
-        //             child: Text('是'),
-        //           ),
-        //           SimpleDialogOption(
-        //             onPressed: () {
-        //               Navigator.of(context).pop();
-        //             },
-        //             child: Text('否'),
-        //           ),
-        //         ],
-        //       );
-        //     }
-        //   );
-        // },
-        child: Container(
-          padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-          child: Text(
-            '姓名：${patient.name ?? ""} 歲數：${patient.age ?? ""} 性別：${patient.gender}',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-        ),
-      ),
-    ));
+        child: patient.deleted ? disableButton : enableButton,
+      )
+    );
   }
 
   void gotoStartPageForMedical(Patient patient) {
